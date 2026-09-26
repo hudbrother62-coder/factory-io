@@ -14,7 +14,7 @@ const initial = () => ({ parts: [
   { id: 'cv-b', type: 'conveyor', x: .9, z: -.4, rotation: 0, name: 'Sorting Conveyor', value: true },
   { id: 'emit-a', type: 'emitter', x: -4.1, z: -.4, rotation: 0, name: 'Box Feeder', value: true },
   { id: 'sensor-a', type: 'sensor', x: .1, z: -.4, rotation: 0, name: 'Detection Sensor', value: false },
-  { id: 'push-a', type: 'pusher', x: 1.8, z: -1.4, rotation: 0, name: 'Sorting Pusher', value: false },
+  { id: 'push-a', type: 'pusher', x: .25, z: -1.4, rotation: 0, name: 'Sorting Pusher', value: false },
   { id: 'stop-a', type: 'stopper', x: 3.3, z: -.4, rotation: 0, name: 'End Stopper', value: false },
   { id: 'lamp-a', type: 'lamp', x: 3.8, z: -2.2, rotation: 0, name: 'Run Indicator', value: true }
 ], rules: [{ id: 'rule-a', source: 'sensor-a', inverted: false, target: 'push-a', value: true }], version: 1 });

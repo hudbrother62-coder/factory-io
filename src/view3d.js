@@ -29,15 +29,16 @@ export class FactoryView {
     this.controls.target.set(0, .6, 0);
     this.reset();
     this.world.add(new T.HemisphereLight(0xe5f2ff, 0x70848b, 2.4));
-    const sun = new T.DirectionalLight(0xfff4df, 3.2);
+    this.world.add(new T.AmbientLight(0xffffff,this.software?.8:.1));
+    const sun = new T.DirectionalLight(0xfff4df, this.software?.9:3.2);
     sun.position.set(-6, 15, 8); sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
     Object.assign(sun.shadow.camera, { left: -13, right: 13, top: 13, bottom: -13 });
     sun.shadow.bias = -.0005; this.world.add(sun);
     this.materials = new Map(); this.objects = new Map(); this.boxes = new Map();
     const floor = new T.Mesh(new T.PlaneGeometry(100,100), this.mat('#899ca4'));
-    floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; this.world.add(floor);
-    const grid = new T.GridHelper(60,60,0x667f8b,0x7d949f); grid.position.y = .008; this.world.add(grid);
+    floor.renderOrder=-1000;floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; this.world.add(floor);
+    const grid = new T.GridHelper(60,60,0x667f8b,0x7d949f); grid.renderOrder=-999;grid.position.y = .008; this.world.add(grid);
     const environment = new T.Group(); this.world.add(environment);
     // Painted work cell perimeter and walkways.
     for (const z of [-3.7,3.7]) this.cube(environment, [12,.008,.08], [0,.012,z], '#edce69');
@@ -64,7 +65,7 @@ export class FactoryView {
   }
   mat(color, metalness=.25) { const key=color+metalness; if(!this.materials.has(key)) this.materials.set(key,new T.MeshStandardMaterial({color,roughness:.55,metalness})); return this.materials.get(key); }
   cube(group,size,pos,color) { const m = new T.Mesh(new T.BoxGeometry(...size),this.mat(color)); m.position.set(...pos);m.castShadow=true;m.receiveShadow=true;group.add(m);return m; }
-  cylinder(group,radius,height,pos,color,axis='y') {const m=new T.Mesh(new T.CylinderGeometry(radius,radius,height,16),this.mat(color,.65));m.position.set(...pos);if(axis==='z')m.rotation.x=Math.PI/2;if(axis==='x')m.rotation.z=Math.PI/2;m.castShadow=true;group.add(m);return m;}
+  cylinder(group,radius,height,pos,color,axis='y') {const m=new T.Mesh(new T.CylinderGeometry(radius,radius,height,this.software?6:16),this.mat(color,.65));m.position.set(...pos);if(axis==='z')m.rotation.x=Math.PI/2;if(axis==='x')m.rotation.z=Math.PI/2;m.castShadow=true;group.add(m);return m;}
   makePart(type) {
     const g=new T.Group();g.userData.type=type;
     if(type==='conveyor') {
@@ -72,7 +73,7 @@ export class FactoryView {
       this.cube(g,[3.4,.18,1.25],[0,.8,0],'#adb9bd');
       this.cube(g,[3.28,.07,1.02],[0,.91,0],'#2c444b');
       for(const z of [-.6,.6]) this.cube(g,[3.5,.12,.055],[0,.99,z],'#cbd3d4');
-      for(let x=-1.55;x<1.6;x+=.26) this.cylinder(g,.045,1.04,[x,.965,0],'#556d74','z');
+      for(let x=-1.55;x<1.6;x+=(this.software?.42:.26)) this.cylinder(g,.045,1.04,[x,.965,0],'#556d74','z');
       this.cube(g,[.35,.3,.3],[1.4,.72,.83],'#318295');
       this.cylinder(g,.11,.35,[1.4,.72,.61],'#b7c1c4','z');
       g.userData.indicator=this.cube(g,[.11,.05,.09],[-1.35,1.04,-.62],'#59d9b0');
@@ -123,7 +124,7 @@ export class FactoryView {
   rayAt(x,y){this.pointer.set(x/this.canvas.clientWidth*2-1,-y/this.canvas.clientHeight*2+1);this.ray.setFromCamera(this.pointer,this.camera);}
   ground(x,y){this.rayAt(x,y);const p=new T.Vector3();return this.ray.ray.intersectPlane(this.plane,p)?{x:p.x,z:p.z}:{x:0,z:0};}
   pick(x,y){this.rayAt(x,y);const hit=this.ray.intersectObjects([...this.objects.values()],true)[0];if(!hit)return null;let g=hit.object;while(g&&!g.userData.id)g=g.parent;return g?.userData.id;}
-  reset(){this.camera.position.set(11,10,13);this.controls.target.set(0,.5,0);this.controls.update();}
+  reset(){this.camera.position.set(8.5,7.5,10.5);this.controls.target.set(0,.5,0);this.controls.update();}
   zoom(factor){this.camera.position.sub(this.controls.target).multiplyScalar(factor).add(this.controls.target);this.controls.update();}
   resize(){const w=this.canvas.parentElement.clientWidth,h=this.canvas.parentElement.clientHeight;if(!w||!h)return;this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();}
 }

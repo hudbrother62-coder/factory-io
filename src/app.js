@@ -12,6 +12,8 @@ const catalog = {
   button: { name: 'Push Button', group: 'SIGNALS', icon: '◌', desc: 'Input manual', color: '#e88f91', size: [.6, .6], sensor: true }
 };
 const initial = () => ({ parts: [
+  { id: 'workpiece-a', type: 'box', x: -3.3, z: -.4, rotation: 0, name: 'Workpiece A', value: false },
+  { id: 'workpiece-b', type: 'box', x: -1.7, z: -.4, rotation: 0, name: 'Workpiece B', value: false },
   { id: 'cv-a', type: 'conveyor', x: -2.8, z: -.4, rotation: 0, name: 'Infeed Conveyor', value: true },
   { id: 'cv-b', type: 'conveyor', x: .9, z: -.4, rotation: 0, name: 'Sorting Conveyor', value: true },
   { id: 'emit-a', type: 'emitter', x: -4.1, z: -.4, rotation: 0, name: 'Box Feeder', value: true },

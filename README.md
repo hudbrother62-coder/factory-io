@@ -1,4 +1,4 @@
-# Factory I/O Web Lab
+# Factory I/O 3D Web Lab
 
 Simulator pabrik berbasis browser untuk merancang scene, menjalankan conveyor, menguji sensor dan aktuator, menulis aturan kontrol, serta menyimpan proyek. Ini implementasi mandiri yang terinspirasi oleh alur kerja simulator industri; bukan produk resmi Factory I/O dan tidak memakai aset miliknya.
 
@@ -13,12 +13,22 @@ Di Vercel, impor repo ini dan tambahkan variabel server `DATABASE_URL` dari Neon
 
 ## Fitur versi ini
 
-- Editor scene isometrik berbasis Canvas: tempatkan, pilih, pindahkan, putar, duplikasi, hapus komponen; zoom dan pan.
+- Editor scene 3D WebGL berbasis Three.js: tempatkan, pilih, pindahkan, putar, duplikasi, hapus komponen; orbit, zoom dan pan.
 - Conveyor, sensor fotoelektrik, stopper, pusher, lampu, tombol, emitter dan kotak kerja.
 - Mode Edit/Run, pause, reset, kecepatan 0.25×–4×; tab tag I/O dan forcing aktuator.
 - Aturan `WHEN sensor/flag THEN actuator = on/off`, termasuk kondisi inversi.
 - Template scene, simpan lokal/Neon, ekspor/impor JSON.
 
+## PLC dan wiring
+
+- Gateway Modbus TCP lokal: PLC client membaca sensor virtual melalui FC02 dan menulis aktuator virtual melalui FC05/15.
+- Pemetaan alamat per tag, ekspor CSV, diagram wiring logika SVG, token sesi, pembatasan origin, dan watchdog.
+- Panduan lengkap: [gateway/README.md](gateway/README.md).
+- Mulai: `npm ci`, `npm run build`, `npm run gateway`. Buka `http://127.0.0.1:8765` untuk workspace lokal dan masukkan token terminal.
+- Uji protokol: `npm run test:gateway`.
+
 ## Batasan teknis
 
-Simulasi merupakan model pedagogis 2.5D, belum fisika 3D presisi, scene resmi, PLC industri, Modbus, OPC UA, atau Siemens. Browser tidak bisa langsung mengakses jaringan PLC pengguna dari fungsi Vercel. Integrasi PLC memerlukan gateway lokal yang disetujui pengguna, otentikasi, dan pengujian perangkat terpisah.
+Ruang visual menggunakan model 3D sungguhan; pergerakan benda masih simulasi kinematik untuk latihan, belum rigid-body physics industri. Gateway Modbus berfungsi sebagai server; PLC perlu mode client/master. Driver S7/PLCSIM, OPC UA dan wiring terminal daya spesifik CPU belum tersedia. Diagram wiring yang diekspor adalah hubungan logika tag/alamat, bukan rangkaian daya.
+
+Dokumentasi referensi: [Three.js OrbitControls](https://threejs.org/docs/pages/OrbitControls.html), [modbus-serial](https://github.com/yaacov/node-modbus-serial), [Factory I/O drivers](https://docs.factoryio.com/manual/drivers/).

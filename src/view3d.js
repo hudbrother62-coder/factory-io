@@ -1,13 +1,21 @@
 import * as T from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { SVGRenderer } from 'three/addons/renderers/SVGRenderer.js';
 
 export class FactoryView {
   constructor(canvas) {
     this.canvas = canvas;
-    this.renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: false });
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6));
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = T.PCFSoftShadowMap;
+    try { this.renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: false }); }
+    catch {
+      this.software = true;
+      this.renderer = new SVGRenderer();
+      this.renderer.setQuality('low'); this.renderer.setPrecision(2);
+      this.renderer.domElement.classList.add('software-3d');
+      canvas.parentElement.prepend(this.renderer.domElement);
+      document.getElementById('scene-subtitle').textContent='3D COMPATIBILITY MODE';
+    }
+    this.renderer.setPixelRatio?.(Math.min(devicePixelRatio, 1.6));
+    if(this.renderer.shadowMap){this.renderer.shadowMap.enabled = true;this.renderer.shadowMap.type = T.PCFSoftShadowMap;}
     this.renderer.toneMapping = T.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.25;
     this.world = new T.Scene();
@@ -102,6 +110,8 @@ export class FactoryView {
     return g;
   }
   sync(parts,boxes,selected,run) {
+    if(this.software && performance.now()-(this.lastDraw||0)<60)return;
+    this.lastDraw=performance.now();
     const wanted=new Set(parts.filter(p=>!run||p.type!=='box').map(p=>p.id));
     for(const [id,g] of this.objects)if(!wanted.has(id)){this.dispose(g);this.objects.delete(id);}
     for(const p of parts){if(!wanted.has(p.id))continue;let g=this.objects.get(p.id);if(g&&g.userData.type!==p.type){this.dispose(g);this.objects.delete(p.id);g=null;}if(!g){g=this.makePart(p.type);g.userData.id=p.id;this.world.add(g);this.objects.set(p.id,g);}g.position.set(p.x,0,p.z);g.rotation.y=-(p.rotation||0)*Math.PI/2;if(g.userData.indicator)g.userData.indicator.material=this.mat(p.value?'#5df6bc':'#725b5a');if(g.userData.arm){if(p.type==='pusher')g.userData.arm.position.z=p.value?.3:-.3;else g.userData.arm.position.y=p.value?0:-.45;}}

@@ -25,3 +25,8 @@ test('forced coil retains value until released',()=>{
 test('v1 WHEN rules migrate to ladder; unknown tags rejected',()=>{
  const s={parts:[p('i','sensor'),p('q','conveyor')],rules:[{id:'old',source:'i',target:'q',inverted:false,value:true}]};assert.equal(normaliseProgram(s).length,1);assert.equal(validProgram(normaliseProgram(s),s.parts),true);assert.equal(validProgram([{id:'bad',contacts:[{tag:'unknown',kind:'NO'}],coil:{tag:'q',mode:'OUT'}}],s.parts),false);
 });
+test('migrated v1 scene retains its originally energised conveyor',()=>{
+ const scene={parts:[p('sensor','sensor'),p('conveyor','conveyor',true),p('pusher','pusher')],rules:[{id:'old',source:'sensor',target:'pusher',inverted:false,value:true}]};
+ const program=normaliseProgram(scene);assert.equal(program.some(r=>r.coil.tag==='conveyor'&&r.contacts.length===0),true);scene.program=program;
+ scene.parts[1].value=false;const plc=new VirtualPLC();plc.scan(scene,.02);assert.equal(scene.parts[1].value,true);
+});

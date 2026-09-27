@@ -1,34 +1,43 @@
-# Factory I/O 3D Web Lab
+# PLC Lab 3D — Virtual Factory & Ladder
 
-Simulator pabrik berbasis browser untuk merancang scene, menjalankan conveyor, menguji sensor dan aktuator, menulis aturan kontrol, serta menyimpan proyek. Ini implementasi mandiri yang terinspirasi oleh alur kerja simulator industri; bukan produk resmi Factory I/O dan tidak memakai aset miliknya.
+Web-first **educational** PLC and factory simulator. Independent implementation inspired by typical industrial simulator workflows; not Factory I/O, and no proprietary Factory I/O assets are included.
 
-## Mulai
+## Fast start (no software installation)
 
-```bash
-npm install
+1. Open the web app and choose **Template** to load the new Sorting Line lesson (especially if the browser already has an older saved scene).
+2. Open **Ladder Editor** in the bottom panel. Example program: START sets M0; STOP resets M0; M0 energises conveyors, feeder and lamp; the photoelectric sensor starts T1 (TON, 0.25 s), which energises the pusher.
+3. Click **RUN**, then **START** inside the Ladder panel (or click the button in the 3D scene). Click STOP to stop.
+4. View current inputs, outputs and manually forced actuator states under **I/O Monitor**. Review timestamped changes in **Event Log**.
+5. Click **EDIT** to change parts and rungs, then RUN again. Use **Save** for Neon cloud and browser autosave, or Export/Import JSON.
+
+The PLC scans the scene's sensor/button input image, executes ladder rungs in order, writes the output image, then animates actuators/boxes. Implemented instructions: series NO/NC contacts, OUT, SET, RESET, TON, CTU and RES; eight memory bits, four timers and four counters. This is a small learning subset, **not** a complete IEC 61131-3 implementation or hardware-safety controller.
+
+## Stack and storage
+
+- Vite, JavaScript, Three.js and a browser-side VirtualPLC runtime.
+- Neon PostgreSQL for optional scene/project storage. Configure server-only `DATABASE_URL` in Vercel and apply `db/schema.sql`.
+- Every browser has its own locally generated workspace key. Projects and rungs autosave locally, but cloud save requires configured Neon. Export JSON for portability.
+- Primitive component geometry is currently bundled. Optional cloud 3D asset library and physically detailed machine models are future work; Cloudflare R2 is not required by this version.
+- No Supabase or Google Drive required.
+
+## Physical PLC and wiring
+
+Choose **PLC** to use the existing optional **local Modbus TCP gateway**, with the PLC acting as client/master and the gateway as server. See [gateway/README.md](gateway/README.md). This requires a local Node runtime and a reachable PLC; the cloud web editor itself needs no installation. On HTTPS, use a trusted WSS endpoint or the gateway's local workspace. Siemens S7/PLCSIM native, OPC UA, and browser-direct raw TCP are not implemented.
+
+**Wiring** exports a logical I/O mapping as SVG/CSV, not a verified 24 V electrical terminal diagram. Physical wiring must follow the exact PLC and module datasheets.
+
+## Development / test
+
+```sh
+npm ci
+npm run check:syntax
+npm test
+npm run build
 npm run dev
 ```
 
-Di Vercel, impor repo ini dan tambahkan variabel server `DATABASE_URL` dari Neon (pooled). Jalankan `db/schema.sql` pada database Neon sebelum menyimpan proyek ke cloud. Tanpa variabel itu editor tetap bekerja dengan autosave lokal serta ekspor/impor JSON.
+Tests cover virtual PLC latch, NO/NC, TON, CTU, forced output, legacy v1 project migration, and the existing Modbus TCP round trip, watchdog and token/origin protections.
 
-## Fitur versi ini
+## Current limitations
 
-- Editor scene 3D WebGL berbasis Three.js: tempatkan, pilih, pindahkan, putar, duplikasi, hapus komponen; orbit, zoom dan pan.
-- Conveyor, sensor fotoelektrik, stopper, pusher, lampu, tombol, emitter dan kotak kerja.
-- Mode Edit/Run, pause, reset, kecepatan 0.25×–4×; tab tag I/O dan forcing aktuator.
-- Aturan `WHEN sensor/flag THEN actuator = on/off`, termasuk kondisi inversi.
-- Template scene, simpan lokal/Neon, ekspor/impor JSON.
-
-## PLC dan wiring
-
-- Gateway Modbus TCP lokal: PLC client membaca sensor virtual melalui FC02 dan menulis aktuator virtual melalui FC05/15.
-- Pemetaan alamat per tag, ekspor CSV, diagram wiring logika SVG, token sesi, pembatasan origin, dan watchdog.
-- Panduan lengkap: [gateway/README.md](gateway/README.md).
-- Mulai: `npm ci`, `npm run build`, `npm run gateway`. Buka `http://127.0.0.1:8765` untuk workspace lokal dan masukkan token terminal.
-- Uji protokol: `npm run test:gateway`.
-
-## Batasan teknis
-
-Ruang visual menggunakan model 3D sungguhan; pergerakan benda masih simulasi kinematik untuk latihan, belum rigid-body physics industri. Gateway Modbus berfungsi sebagai server; PLC perlu mode client/master. Driver S7/PLCSIM, OPC UA dan wiring terminal daya spesifik CPU belum tersedia. Diagram wiring yang diekspor adalah hubungan logika tag/alamat, bukan rangkaian daya.
-
-Dokumentasi referensi: [Three.js OrbitControls](https://threejs.org/docs/pages/OrbitControls.html), [modbus-serial](https://github.com/yaacov/node-modbus-serial), [Factory I/O drivers](https://docs.factoryio.com/manual/drivers/).
+3D motion uses educational kinematics rather than industrial rigid-body physics. A browser consumes local GPU/RAM for rendering even when source and projects are stored in the cloud. The project will be expanded in small validated stages rather than claiming unsupported Ultimate Edition feature parity.

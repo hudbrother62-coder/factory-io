@@ -8,7 +8,9 @@
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
     "gateway": "node gateway/server.mjs",
-    "test:gateway": "node --test tests/gateway.test.mjs"
+    "test:gateway": "node --test tests/gateway.test.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check:syntax": "node --check src/app.js && node --check src/softplc.js && node --check src/ladder-ui.js && node --check src/view3d.js && node --check src/plc.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",

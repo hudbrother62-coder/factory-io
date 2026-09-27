@@ -14,7 +14,9 @@ export function validProgram(program,parts){
  if(!Array.isArray(program)||program.length>64)return false;
  const partTags=new Set(parts.filter(p=>['sensor','button','conveyor','pusher','stopper','emitter','lamp'].includes(p.type)).map(p=>p.id));
  const allowed=new Set([...partTags,...MEMORY_TAGS,...TIMER_TAGS,...COUNTER_TAGS]);
- return program.every(r=>r&&typeof r.id==='string'&&Array.isArray(r.contacts)&&r.contacts.length<=8&&r.contacts.every(c=>allowed.has(c.tag)&&['NO','NC'].includes(c.kind))&&r.coil&&allowed.has(r.coil.tag)&&[...COIL_MODES,'INVERT'].includes(r.coil.mode)&&
+ const contactOK=c=>allowed.has(c.tag)&&['NO','NC'].includes(c.kind);
+ const pathOK=path=>Array.isArray(path)&&path.length<=8&&path.every(contactOK);
+ return program.every(r=>r&&typeof r.id==='string'&&Array.isArray(r.contacts)&&pathOK(r.contacts)&&(!('branches' in r)||(Array.isArray(r.branches)&&r.branches.length<=3&&r.branches.every(pathOK)))&&r.coil&&allowed.has(r.coil.tag)&&[...COIL_MODES,'INVERT'].includes(r.coil.mode)&&
  (r.coil.mode!=='TON'||(TIMER_TAGS.includes(r.coil.tag)&&Number.isFinite(Number(r.coil.pt))&&Number(r.coil.pt)>=.05&&Number(r.coil.pt)<=120))&&
  (r.coil.mode!=='CTU'||(COUNTER_TAGS.includes(r.coil.tag)&&Number.isInteger(Number(r.coil.pv))&&Number(r.coil.pv)>=1&&Number(r.coil.pv)<=9999)));
 }
@@ -33,7 +35,8 @@ export class VirtualPLC{
   const inputs=new Set(scene.parts.filter(p=>['sensor','button'].includes(p.type)).map(p=>p.id));
   const outputs=new Set(scene.parts.filter(p=>['conveyor','pusher','stopper','emitter','lamp'].includes(p.type)).map(p=>p.id));
   for(const rung of normaliseProgram(scene)){
-   const conducted=rung.contacts.every(c=>c.kind==='NC'?!this.value(c.tag,image):this.value(c.tag,image));
+   const pathEnergised=path=>path.every(c=>c.kind==='NC'?!this.value(c.tag,image):this.value(c.tag,image));
+   const conducted=pathEnergised(rung.contacts)||(Array.isArray(rung.branches)&&rung.branches.some(pathEnergised));
    this.trace[rung.id]=conducted;
    const {tag,mode}=rung.coil;
    if(mode==='TON'){const t=this.timers[tag]||{et:0,q:false};t.et=conducted?Math.min(Number(rung.coil.pt),t.et+elapsed):0;t.q=conducted&&t.et>=Number(rung.coil.pt)-1e-9;this.timers[tag]=t;continue;}

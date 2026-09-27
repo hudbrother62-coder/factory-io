@@ -3,7 +3,7 @@ import { PlcLink } from './plc.js';
 import { VirtualPLC, normaliseProgram, validProgram } from './softplc.js';
 import { renderLadderEditor, updateLadderLive } from './ladder-ui.js';
 import {ensureOmronAddresses,labelFor,updateOmronAddress,isMapped} from './omron.js';
-import {renderOmronMapping} from './omron-ui.js';
+import {renderOmronMapping,updateOmronLive} from './omron-ui.js';
 const $ = (id) => document.getElementById(id);
 const catalog = {
   conveyor: { name: 'Belt Conveyor', group: 'TRANSPORT', icon: '▰', desc: 'Memindahkan benda', color: '#cf9468', size: [3.4, 1.25], actuator: true },
@@ -47,6 +47,23 @@ let sim = { time: 0, boxes: [], events: [], emitterClock: 0, sensorStates: {} };
 let toastTimer, dirty = false, frameLast = 0, dpr = 1;
 const canvas = $('stage');
 const view = new FactoryView(canvas);
+// UI-only preferences; never change scene, project data or cloud storage.
+const layoutKey='factory-layout-v1';
+const savedLayout=(()=>{try{return JSON.parse(localStorage.getItem(layoutKey)||'null');}catch{return null;}})();
+let uiPanels={library:savedLayout?.library??(window.innerWidth>820),inspector:savedLayout?.inspector??(window.innerWidth>1350)};
+function updateLayout(persist=false){
+ const app=$('app');app.classList.toggle('hide-library',!uiPanels.library);app.classList.toggle('hide-inspector',!uiPanels.inspector);
+ $('library-toggle').setAttribute('aria-pressed',String(uiPanels.library));$('inspector-toggle').setAttribute('aria-pressed',String(uiPanels.inspector));
+ $('library-toggle').classList.toggle('active',uiPanels.library);$('inspector-toggle').classList.toggle('active',uiPanels.inspector);
+ $('focus-btn').setAttribute('aria-pressed',String(app.classList.contains('focus-3d')));
+ $('focus-btn').classList.toggle('active',app.classList.contains('focus-3d'));
+ if(persist)localStorage.setItem(layoutKey,JSON.stringify(uiPanels));
+ requestAnimationFrame(()=>view.resize());
+}
+function showPropertiesAfterPick(){
+ if(window.innerWidth<=1350&&!uiPanels.inspector&&!$('app').classList.contains('focus-3d')){uiPanels.inspector=true;if(window.innerWidth<=1190)uiPanels.library=false;updateLayout(true);}
+}
+if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>view.resize()).observe(canvas.parentElement);
 const virtual = new VirtualPLC();
 const plc = new PlcLink({scene:()=>scene,notify,changed:markDirty,isRunning:()=>mode==='run'&&!paused});
 const key = (() => { let v = localStorage.getItem('factory-workspace-key'); if (!v) { v = [...crypto.getRandomValues(new Uint8Array(32))].map(x => x.toString(16).padStart(2, '0')).join(''); localStorage.setItem('factory-workspace-key', v); } return v; })();
@@ -109,18 +126,27 @@ function renderInspector(){const host=$('inspector-content');const p=scene.parts
   if(mode==='edit'){for(const field of ['name','x','z','rotation']){const el=$(`prop-${field}`);el.onchange=()=>{let v=field==='name'?el.value.trim().slice(0,60):Number(el.value);if(field==='name'&&!v)v=catalog[p.type].name;if(field==='x'||field==='z')v=Math.min(30,Math.max(-30,Number.isFinite(v)?v:0));p[field]=v;markDirty();};} $('duplicate-part').onclick=()=>{const copy={...p,id:uid(),name:p.name+' copy',x:p.x+1,z:p.z+1};delete copy.omronAddress;scene.parts.push(copy);ensureOmronAddresses(scene);selected=copy.id;markDirty();};$('remove-part').onclick=removeSelected;}}
 function pulseButton(id){if(mode!=='run'||paused)return notify('Tekan RUN dahulu untuk memakai tombol mesin.');const p=scene.parts.find(x=>x.id===id&&x.type==='button');if(!p)return;p.value=true;log(p.name+': pressed');setTimeout(()=>{if(scene.parts.includes(p)){p.value=false;if(activeTab==='io')renderPanel();}},250);}
 function ioTags(){return scene.parts.filter(p=>catalog[p.type].sensor||catalog[p.type].actuator);}
-function renderPanel(){const host=$('panel-content');if(activeTab==='omron')return renderOmronMapping(host,scene,virtual,{changed:markDirty,notify,editable:mode==='edit'});if(activeTab==='io'){const tags=ioTags();host.innerHTML=tags.length?`<button id="release-forces" class="release-forces">Lepas semua force</button><div class="monitor-grid">${tags.map(p=>`<div class="tag-card"><div><small>${safe(labelFor(scene,p.id))} · ${catalog[p.type].sensor?'INPUT':'OUTPUT'}</small><strong title="${safe(p.name)}">${safe(p.name)}</strong></div><button class="tag-value ${p.value?'on':''} ${catalog[p.type].actuator?'force':''}" data-toggle="${safe(p.id)}" title="${catalog[p.type].actuator?'Klik untuk force tag':'Input sensor'}">${p.value?'ON':'OFF'}</button></div>`).join('')}</div>`:'<div class="empty-panel">Tambahkan sensor atau aktuator untuk melihat tag I/O.</div>';const release=host.querySelector('#release-forces');if(release)release.onclick=()=>{for(const p of scene.parts)p.forced=false;notify('Semua force dilepas.');};host.querySelectorAll('[data-toggle]').forEach(btn=>btn.onclick=()=>{const p=scene.parts.find(x=>x.id===btn.dataset.toggle);if(!p||!catalog[p.type].actuator)return;if(plc.enabled)return notify('Mode PLC aktif: aktuator mengikuti coil dari PLC.');p.value=!p.value;p.forced=true;log(`${p.name}: forced ${p.value?'ON':'OFF'}`);markDirty();});}
+function renderPanel(){const host=$('panel-content');if(activeTab==='omron')return renderOmronMapping(host,scene,virtual,{changed:markDirty,notify,editable:mode==='edit'});if(activeTab==='io'){const tags=ioTags();host.innerHTML=tags.length?`<button id="release-forces" class="release-forces">Lepas semua force</button><div class="monitor-grid">${tags.map(p=>`<div class="tag-card"><div><small>${safe(labelFor(scene,p.id))} · ${catalog[p.type].sensor?'INPUT':'OUTPUT'}</small><strong title="${safe(p.name)}">${safe(p.name)}</strong></div><button class="tag-value ${p.value?'on':''} ${catalog[p.type].actuator?'force':''}" data-toggle="${safe(p.id)}" data-io-value="${safe(p.id)}" title="${catalog[p.type].actuator?'Klik untuk force tag':'Input sensor'}">${p.value?'ON':'OFF'}</button></div>`).join('')}</div>`:'<div class="empty-panel">Tambahkan sensor atau aktuator untuk melihat tag I/O.</div>';const release=host.querySelector('#release-forces');if(release)release.onclick=()=>{for(const p of scene.parts)p.forced=false;notify('Semua force dilepas.');};host.querySelectorAll('[data-toggle]').forEach(btn=>btn.onclick=()=>{const p=scene.parts.find(x=>x.id===btn.dataset.toggle);if(!p||!catalog[p.type].actuator)return;if(plc.enabled)return notify('Mode PLC aktif: aktuator mengikuti coil dari PLC.');p.value=!p.value;p.forced=true;log(`${p.name}: forced ${p.value?'ON':'OFF'}`);markDirty();});}
   else if(activeTab==='events')host.innerHTML=sim.events.length?sim.events.map(e=>`<div class="event-row"><time>${safe(e.time)}s</time><span>${safe(e.message)}</span></div>`).join(''):'<div class="empty-panel">Peristiwa simulasi akan muncul di sini. Tekan RUN untuk memulai.</div>';
   else renderLadderEditor(host,scene,virtual,{changed:markDirty,pulse:pulseButton,editable:mode==='edit'});
+}
+// Update only live values; do not rebuild the panel every 250 ms or destroy its scroll position.
+function updateIoLive(){
+ const host=$('panel-content');
+ for(const btn of host.querySelectorAll('[data-io-value]')){
+  const p=scene.parts.find(x=>x.id===btn.dataset.ioValue);if(!p)continue;
+  btn.textContent=p.value?'ON':'OFF';btn.classList.toggle('on',Boolean(p.value));
+ }
+}
 }
 function removeSelected(){if(!selected||mode==='run')return;scene.parts=scene.parts.filter(p=>p.id!==selected);scene.rules=scene.rules.filter(r=>r.source!==selected&&r.target!==selected);scene.program=normaliseProgram(scene).filter(r=>r.coil.tag!==selected&&!r.contacts.some(c=>c.tag===selected)&&!(r.branches||[]).some(branch=>branch.some(c=>c.tag===selected)));selected=null;markDirty();}
 function pick(x,y){const id=view.pick(x,y);return scene.parts.find(p=>p.id===id);}
 canvas.addEventListener('pointerdown',e=>{
  const rect=canvas.getBoundingClientRect();mouse={x:e.clientX-rect.left,y:e.clientY-rect.top};
  if(e.button!==0)return;
- if(mode==='edit'&&placing){view.controls.enabled=false;const w=view.ground(mouse.x,mouse.y),type=placing;if(scene.parts.length>=250)return notify('Maksimal 250 komponen.');const part={id:uid(),type,x:Math.round(w.x*2)/2,z:Math.round(w.z*2)/2,rotation:0,name:catalog[type].name+' '+(scene.parts.filter(p=>p.type===type).length+1),value:['conveyor','emitter'].includes(type)};scene.parts.push(part);ensureOmronAddresses(scene);selected=part.id;placing=null;markDirty();notify(part.name+' ditambahkan. Atur posisi, nama dan rotasinya di Properties sebelah kanan.');return;}
+ if(mode==='edit'&&placing){view.controls.enabled=false;const w=view.ground(mouse.x,mouse.y),type=placing;if(scene.parts.length>=250)return notify('Maksimal 250 komponen.');const part={id:uid(),type,x:Math.round(w.x*2)/2,z:Math.round(w.z*2)/2,rotation:0,name:catalog[type].name+' '+(scene.parts.filter(p=>p.type===type).length+1),value:['conveyor','emitter'].includes(type)};scene.parts.push(part);ensureOmronAddresses(scene);selected=part.id;placing=null;showPropertiesAfterPick();markDirty();notify(part.name+' ditambahkan. Atur posisi, nama dan rotasinya di Properties sebelah kanan.');return;}
  const p=pick(mouse.x,mouse.y);
- if(mode==='edit'){selected=p?.id||null;renderInspector();if(p){$('stage-hint').textContent='Objek terpilih · ubah Properties di kanan atau seret untuk memindahkan';view.controls.enabled=false;const start=view.ground(mouse.x,mouse.y);dragging={id:p.id,start,originalX:p.x,originalZ:p.z};}}
+ if(mode==='edit'){selected=p?.id||null;if(p)showPropertiesAfterPick();renderInspector();if(p){$('stage-hint').textContent='Objek terpilih · ubah Properties di kanan atau seret untuk memindahkan';view.controls.enabled=false;const start=view.ground(mouse.x,mouse.y);dragging={id:p.id,start,originalX:p.x,originalZ:p.z};}}
  else if(p?.type==='button'){pulseButton(p.id);renderPanel();}
 },true);
 canvas.addEventListener('pointermove',e=>{const rect=canvas.getBoundingClientRect();mouse={x:e.clientX-rect.left,y:e.clientY-rect.top};const w=view.ground(mouse.x,mouse.y);$('hover-coords').textContent=`X ${w.x.toFixed(1)} · Z ${w.z.toFixed(1)}`;if(dragging){const p=scene.parts.find(p=>p.id===dragging.id);if(p){p.x=Math.max(-30,Math.min(30,Math.round((dragging.originalX+w.x-dragging.start.x)*2)/2));p.z=Math.max(-30,Math.min(30,Math.round((dragging.originalZ+w.z-dragging.start.z)*2)/2));}}});
@@ -135,9 +161,15 @@ function projectsModalRefresh(){projects();}
 $('scene-name').value=saved?.title||'CP1E · Conveyor Sorting Line';$('scene-name').oninput=markDirty;$('edit-btn').onclick=()=>setMode('edit');$('run-btn').onclick=()=>setMode('run');$('pause-btn').onclick=()=>{paused=!paused;$('pause-btn').textContent=paused?'▷':'Ⅱ';$('mode-label').textContent=paused?'SIMULATION PAUSED':'SIMULATION RUNNING';log(paused?'Simulation paused':'Simulation resumed');};$('reset-btn').onclick=()=>{resetSim();log('Simulation reset');notify('Simulasi direset.');};$('template-btn').onclick=template;$('export-btn').onclick=download;$('save-btn').onclick=save;$('projects-btn').onclick=projects;$('close-modal').onclick=closeModal;$('modal-backdrop').onclick=e=>{if(e.target===$('modal-backdrop'))closeModal();};$('fit-btn').onclick=()=>view.reset();$('zoom-in').onclick=()=>view.zoom(.85);$('zoom-out').onclick=()=>view.zoom(1.15);$('theme-btn').onclick=()=>{document.body.classList.toggle('light');localStorage.setItem('factory-theme',document.body.classList.contains('light')?'light':'dark');};if(localStorage.getItem('factory-theme')==='light')document.body.classList.add('light');$('import-input').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{if(f.size>200000)throw Error('File terlalu besar.');const data=JSON.parse(await f.text());if(!validScene(data.scene))throw Error('Format scene tidak valid.');scene=ensureOmronAddresses(data.scene);scene.program=normaliseProgram(scene);projectId=null;selected=null;setMode('edit');resetSim();$('scene-name').value=String(data.title||'Scene impor').slice(0,100);markDirty();notify('Scene diimpor.');}catch(err){notify(err.message);}e.target.value='';};document.querySelectorAll('.panel-tabs button').forEach(b=>b.onclick=()=>{activeTab=b.dataset.tab;document.querySelectorAll('.panel-tabs button').forEach(x=>x.classList.toggle('active',x===b));renderPanel();});renderPalette();renderInspector();renderPanel();resize();
 
 $('help-btn').onclick=showGuide;$('lesson-help').onclick=showGuide;
+$('library-toggle').onclick=()=>{$('app').classList.remove('focus-3d');uiPanels.library=!uiPanels.library;updateLayout(true);};
+$('inspector-toggle').onclick=()=>{$('app').classList.remove('focus-3d');uiPanels.inspector=!uiPanels.inspector;updateLayout(true);};
+$('focus-btn').onclick=()=>{$('app').classList.toggle('focus-3d');updateLayout();};
+$('panel-collapse').onclick=()=>{const collapsed=$('app').classList.toggle('panel-collapsed');$('panel-collapse').textContent=collapsed?'⌃':'⌄';$('panel-collapse').setAttribute('aria-label',collapsed?'Tampilkan panel bawah':'Sembunyikan panel bawah');requestAnimationFrame(()=>view.resize());};
+$('tools-menu').querySelector('.tools-popover').addEventListener('click',e=>{if(e.target.closest('button, label'))$('tools-menu').open=false;});
+updateLayout();
 $('expand-panel').onclick=()=>{const expanded=$('app').classList.toggle('editor-expanded');$('expand-panel').innerHTML=expanded?'↙ <span>Perkecil editor</span>':'↗ <span>Perbesar editor</span>';view.resize();};
-document.addEventListener('keydown',e=>{if(e.key==='F1'){e.preventDefault();showGuide();}if(e.key==='Escape'&&!$('modal-backdrop').classList.contains('hidden')){e.preventDefault();closeModal();}});
+document.addEventListener('keydown',e=>{if(e.key==='F1'){e.preventDefault();showGuide();}if(e.key==='Escape'&&!$('modal-backdrop').classList.contains('hidden')){e.preventDefault();closeModal();}else if(e.key==='Escape'){$('tools-menu').open=false;}});
 if(!localStorage.getItem('factory-guide-cp1e-v1-seen'))showGuide();
 $('plc-btn').onclick=()=>plc.open();
 $('wiring-btn').onclick=()=>plc.wiring();
-setInterval(()=>{if((activeTab==='io'||activeTab==='omron')&&mode==='run')renderPanel();if(activeTab==='ladder'&&mode==='run')updateLadderLive($('panel-content'),virtual);plc.status();},250);
+setInterval(()=>{if(activeTab==='io'&&mode==='run')updateIoLive();if(activeTab==='omron'&&mode==='run')updateOmronLive($('panel-content'),scene,virtual);if(activeTab==='ladder'&&mode==='run')updateLadderLive($('panel-content'),virtual);plc.status();},250);

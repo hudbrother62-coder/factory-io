@@ -39,7 +39,7 @@ const saved = (() => { try { return JSON.parse(localStorage.getItem('factory-sce
 let scene = validScene(saved?.scene) ? saved.scene : initial();
 scene.program = normaliseProgram(scene);
 let projectId = saved?.id || null;
-let mode = 'edit', paused = false, selected = null, placing = null, activeTab = 'io';
+let mode = 'edit', paused = false, selected = null, placing = null, activeTab = 'ladder';
 let camera = { x: 0, y: 25, zoom: 1 }, mouse = { x: 0, y: 0 }, dragging = null;
 let sim = { time: 0, boxes: [], events: [], emitterClock: 0, sensorStates: {} };
 let toastTimer, dirty = false, frameLast = 0, dpr = 1;
@@ -54,7 +54,7 @@ function validScene(s) { return s && Array.isArray(s.parts) && s.parts.length <=
 function notify(s) { $('toast').textContent = s; $('toast').classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('show'), 2700); }
 function markDirty() { dirty = true; $('save-status').textContent = 'Perubahan belum disimpan ke cloud'; localStorage.setItem('factory-scene', JSON.stringify({ id: projectId, title: $('scene-name').value, scene })); renderPalette(); renderInspector(); renderPanel(); }
 function log(s) { sim.events.unshift({ time: sim.time.toFixed(1), message: s }); sim.events.length = Math.min(sim.events.length, 60); if (activeTab === 'events') renderPanel(); }
-function setMode(next) { if (mode === next) return; mode = next; paused = false; placing = null; selected = null; if (next === 'run') { resetSim(); log('Virtual PLC simulation started'); } else resetSim(); $('edit-btn').classList.toggle('active', next === 'edit'); $('run-btn').classList.toggle('active', next === 'run'); $('pause-btn').disabled = next !== 'run'; $('mode-indicator').classList.toggle('running', next === 'run'); $('mode-label').textContent = next === 'run' ? 'SIMULATION RUNNING' : 'EDITOR MODE'; $('engine-status').textContent = next === 'run' ? 'RUNNING' : 'READY'; renderPalette(); renderInspector(); renderPanel(); }
+function setMode(next) { if (mode === next) return; mode = next; paused = false; placing = null; selected = null; if (next === 'run') { resetSim(); log('Virtual PLC simulation started'); } else resetSim(); $('edit-btn').classList.toggle('active', next === 'edit'); $('run-btn').classList.toggle('active', next === 'run'); $('pause-btn').disabled = next !== 'run'; $('mode-indicator').classList.toggle('running', next === 'run'); $('mode-label').textContent = next === 'run' ? 'SIMULATION RUNNING' : 'EDITOR MODE'; $('engine-status').textContent = next === 'run' ? 'RUNNING' : 'READY'; renderPalette(); renderInspector(); renderPanel(); $('lesson-tip').textContent=next==='run'?'Tekan START di panel Ladder untuk menjalankan conveyor. Tekan STOP untuk menghentikan mesin.':'Atur komponen, susun kontak dan coil di Ladder, kemudian pilih RUN.'; }
 function resetSim() { virtual.reset();sim = { time: 0, boxes: scene.parts.filter(p => p.type === 'box').map(p => ({ id: uid(), x: p.x, z: p.z, pushed: false })), events: [], emitterClock: 0, sensorStates: {} }; for (const p of scene.parts) { if (catalog[p.type]?.sensor||catalog[p.type]?.actuator) {p.value=false;p.forced=false;} } renderPanel(); }
 function draw(){view.sync(scene.parts,sim.boxes,selected,mode==='run');}
 function resize(){view.resize();}

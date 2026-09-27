@@ -26,3 +26,9 @@ export function renderLadderEditor(host,scene,virtual,{changed,pulse}){
   row.querySelector('[data-delete-rung]').onclick=()=>{scene.program=scene.program.filter(r=>r!==rung);changed();};
  });
 }
+
+export function updateLadderLive(host,virtual){
+ host.querySelectorAll('[data-rung]').forEach(row=>row.classList.toggle('energized',Boolean(virtual.trace[row.dataset.rung])));
+ const info=host.querySelector('.ladder-footer span');
+ if(info)info.textContent='SCAN '+virtual.scans+' · '+(virtual.lastScanMs||0).toFixed(1)+' ms timestep';
+}

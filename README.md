@@ -41,3 +41,11 @@ Tests cover virtual PLC latch, NO/NC, TON, CTU, forced output, legacy v1 project
 ## Current limitations
 
 3D motion uses educational kinematics rather than industrial rigid-body physics. A browser consumes local GPU/RAM for rendering even when source and projects are stored in the cloud. The project will be expanded in small validated stages rather than claiming unsupported Ultimate Edition feature parity.
+
+## Omron CP1E / CX-Programmer training profile
+
+Load **Latihan CP1E** in the toolbar after exporting any existing unsaved work. The template maps START to CIO `0.00`, STOP to CIO `0.01`, photoelectric sensor to CIO `0.02`, and conveyor to CIO `100.00`. The first network demonstrates a self-holding circuit: two parallel paths, `START NO AND STOP NC` OR `W0.00 NO AND STOP NC`, driving `W0.00 OUT`. Subsequent networks use `W0.00` to energise conveyors/emitter. The sensor drives an educational TIM `T0000`, displayed with a 100 ms preset (`#0005` = 0.5 seconds), and its done bit drives the pusher.
+
+Under **ALAMAT CP1E**, inspect or change CIO addresses, with input and output validation and duplicate address prevention. Ladder references are stored against stable scene component IDs and display the assigned CIO address; changing an address updates the display while preserving the logic. The I/O Monitor and work/timer/counter tables expose live values. The Ladder editor has NO, NC, series, parallel/OR, OUT, SET, RSET, TIM and a simplified rising-edge CNT exercise.
+
+**Scope**: CP1E-inspired learning interface with limited virtual memory (`W0.00–W0.07`, `T0000–T0003`, `C0000–C0003`), not an Omron-authored simulator, not full CX-Programmer, not a hardware-exact CP1E runtime, and not a .cxp parser. This CIO range is an educational namespace; actual terminals, allocated words, and features vary by CPU model and expansion modules. External PLC mode remains the separately documented Modbus gateway—not a native Omron host link/FINS driver. Physical wiring should follow the exact model's hardware manual.

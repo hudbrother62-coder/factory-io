@@ -138,7 +138,6 @@ function updateIoLive(){
   btn.textContent=p.value?'ON':'OFF';btn.classList.toggle('on',Boolean(p.value));
  }
 }
-}
 function removeSelected(){if(!selected||mode==='run')return;scene.parts=scene.parts.filter(p=>p.id!==selected);scene.rules=scene.rules.filter(r=>r.source!==selected&&r.target!==selected);scene.program=normaliseProgram(scene).filter(r=>r.coil.tag!==selected&&!r.contacts.some(c=>c.tag===selected)&&!(r.branches||[]).some(branch=>branch.some(c=>c.tag===selected)));selected=null;markDirty();}
 function pick(x,y){const id=view.pick(x,y);return scene.parts.find(p=>p.id===id);}
 canvas.addEventListener('pointerdown',e=>{

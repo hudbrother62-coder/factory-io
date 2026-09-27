@@ -4,6 +4,22 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 export function renderOmronMapping(host,scene,virtual,{changed,notify,editable}){
  ensureOmronAddresses(scene);
  const parts=scene.parts.filter(isMapped);
- host.innerHTML='<div class="omron-map-intro"><div><strong>OMRON CP1E · CIO ADDRESS MAP</strong><p>Alamat virtual yang digunakan pada Ladder dan komponen 3D. Sesuaikan alamat saat mode EDIT. Ini berbeda dari mapping Modbus gateway; tidak menggambarkan terminal listrik CPU sebenarnya.</p></div><span class="omron-chip">CX-Programmer style</span></div><div class="omron-map-scroll"><table class="omron-address-table"><thead><tr><th>Area</th><th>Alamat CIO</th><th>Perangkat 3D</th><th>Live</th></tr></thead><tbody>'+parts.map(p=>'<tr><td>'+ (isInput(p)?'INPUT':'OUTPUT') +'</td><td><input type="text" maxlength="7" data-address="'+esc(p.id)+'" value="'+esc(p.omronAddress)+'" '+(editable?'':'disabled')+' aria-label="Alamat CIO '+esc(p.name)+'"></td><td>'+esc(p.name)+'</td><td><span class="map-value '+(p.value?'on':'')+'">'+(p.value?'ON':'OFF')+'</span></td></tr>').join('')+'</tbody></table></div><div class="omron-memory"><div><b>WORK (internal)</b> '+MEMORY_TAGS.map(t=>esc(workAddress(t))+': '+(virtual.memory[t]?'ON':'OFF')).join(' · ')+'</div><div><b>TIM</b> '+TIMER_TAGS.map(t=>esc(timerAddress(t))+': '+(virtual.timers[t]?.q?'DONE':'WAIT')).join(' · ')+'</div><div><b>CNT</b> '+COUNTER_TAGS.map(t=>esc(counterAddress(t))+': '+(virtual.counters[t]?.cv||0)).join(' · ')+'</div></div><p class="omron-map-foot">Contoh latihan: START = CIO 0.00, STOP = CIO 0.01, sensor = CIO 0.02, motor = CIO 100.00, W0.00 untuk pengunci. Alamat fisik sebenarnya bergantung varian CPU CP1E dan modul ekspansinya.</p>';
+ host.innerHTML='<div class="omron-map-intro"><div><strong>OMRON CP1E · CIO ADDRESS MAP</strong><p>Alamat virtual yang digunakan pada Ladder dan komponen 3D. Sesuaikan alamat saat mode EDIT. Ini berbeda dari mapping Modbus gateway; tidak menggambarkan terminal listrik CPU sebenarnya.</p></div><span class="omron-chip">CX-Programmer style</span></div><div class="omron-map-scroll"><table class="omron-address-table"><thead><tr><th>Area</th><th>Alamat CIO</th><th>Perangkat 3D</th><th>Live</th></tr></thead><tbody>'+parts.map(p=>'<tr><td>'+ (isInput(p)?'INPUT':'OUTPUT') +'</td><td><input type="text" maxlength="7" data-address="'+esc(p.id)+'" value="'+esc(p.omronAddress)+'" '+(editable?'':'disabled')+' aria-label="Alamat CIO '+esc(p.name)+'"></td><td>'+esc(p.name)+'</td><td><span class="map-value '+(p.value?'on':'')+'" data-omron-value="'+esc(p.id)+'">'+(p.value?'ON':'OFF')+'</span></td></tr>').join('')+'</tbody></table></div><div class="omron-memory"><div><b>WORK (internal)</b> '+MEMORY_TAGS.map(t=>'<span data-memory="'+esc(t)+'">'+esc(workAddress(t))+': '+(virtual.memory[t]?'ON':'OFF')+'</span>').join(' · ')+'</div><div><b>TIM</b> '+TIMER_TAGS.map(t=>'<span data-timer="'+esc(t)+'">'+esc(timerAddress(t))+': '+(virtual.timers[t]?.q?'DONE':'WAIT')+'</span>').join(' · ')+'</div><div><b>CNT</b> '+COUNTER_TAGS.map(t=>'<span data-counter="'+esc(t)+'">'+esc(counterAddress(t))+': '+(virtual.counters[t]?.cv||0)+'</span>').join(' · ')+'</div></div><p class="omron-map-foot">Contoh latihan: START = CIO 0.00, STOP = CIO 0.01, sensor = CIO 0.02, motor = CIO 100.00, W0.00 untuk pengunci. Alamat fisik sebenarnya bergantung varian CPU CP1E dan modul ekspansinya.</p>';
  host.querySelectorAll('[data-address]').forEach(input=>input.onchange=()=>{if(!editable)return;try{const value=updateOmronAddress(scene,input.dataset.address,input.value);input.value=value;changed();notify('Alamat CIO '+value+' tersimpan. Ladder otomatis menampilkan alamat terbaru.');}catch(err){input.value=scene.parts.find(p=>p.id===input.dataset.address).omronAddress;notify(err.message);}});
+}
+
+export function updateOmronLive(host,scene,virtual){
+ for(const node of host.querySelectorAll('[data-omron-value]')){
+  const p=scene.parts.find(x=>x.id===node.dataset.omronValue);if(!p)continue;
+  node.textContent=p.value?'ON':'OFF';node.classList.toggle('on',Boolean(p.value));
+ }
+ for(const node of host.querySelectorAll('[data-memory]')){
+  const tag=node.dataset.memory;node.textContent=workAddress(tag)+': '+(virtual.memory[tag]?'ON':'OFF');
+ }
+ for(const node of host.querySelectorAll('[data-timer]')){
+  const tag=node.dataset.timer;node.textContent=timerAddress(tag)+': '+(virtual.timers[tag]?.q?'DONE':'WAIT');
+ }
+ for(const node of host.querySelectorAll('[data-counter]')){
+  const tag=node.dataset.counter;node.textContent=counterAddress(tag)+': '+(virtual.counters[tag]?.cv||0);
+ }
 }

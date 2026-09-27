@@ -2,3 +2,45 @@
 /* 3D studio and automation panels */
 .stage-wrap{background:#c3cfd4}.stage-overlay{color:#263e4b;text-shadow:0 1px 0 #ffffff66}.stage-top>span:first-child{color:#e8eef3;text-shadow:none;background:#172935e8}.stage-bottom{background:#edf3f0ce;border:1px solid #afbdc4;border-radius:5px;padding:7px 10px;left:14px;right:14px;bottom:12px}.stage-overlay #plc-indicator{color:#445c68}.stage-overlay #plc-indicator.connected{color:#0a7f63}.toolbar{padding:0 9px}.tool-left,.tool-right{gap:4px}.tool-btn{padding:0 8px}.modal{width:min(940px,96vw)}.modal .prop-field{max-width:550px}.modal input,.modal select{font:inherit}.connection-banner{padding:12px 14px;border:1px solid #456b7b;background:#183e48;border-radius:7px;color:#8dd8c6;font-size:12px;margin:18px 0}.gateway-guide{padding:12px;border:1px solid #486073;border-radius:7px;font-size:12px;color:#bfd0dc;line-height:1.7}.gateway-guide summary{cursor:pointer;color:#f0b57f;font-weight:600}.gateway-guide pre{background:#0b1c28;border-radius:6px;padding:12px;overflow:auto}.gateway-guide a{color:#79d5e3}.mapping-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:12px}.mapping-table th{text-align:left;color:#8aabbc;font-size:10px;text-transform:uppercase;letter-spacing:1px}.mapping-table td,.mapping-table th{padding:10px 8px;border-bottom:1px solid #365063}.mapping-table input{width:90px;background:#152b39;color:#d9edf3;border:1px solid #496879;border-radius:5px;padding:7px}.wiring-preview{overflow:auto;margin:18px 0;border-radius:8px}.wiring-preview svg{width:100%;min-width:650px;display:block}.release-forces{font-size:10px;color:#cfa37d;background:none;border:1px solid #485f6e;border-radius:4px;margin-bottom:8px;cursor:pointer;padding:4px 7px}.bottom-panel{height:220px}#panel-content{height:177px}.light .connection-banner{background:#d8eee7;color:#236450}.light .gateway-guide{color:#365361}.light .gateway-guide pre{background:#dae6eb}.light .mapping-table input{background:#fff;color:#234050}.light .gateway-guide a{color:#177a94}.light .mapping-table th{color:#4d7385}@media(min-width:1400px){.workspace{grid-template-columns:230px minmax(0,1fr) 260px}.stage-wrap{min-height:370px}}@media(max-width:1250px){.tool-btn.labeled span{display:none}.tool-left .divider{display:none}.toolbar .speed-control{font-size:0}}@media(max-width:800px){.stage-wrap{height:55vh;min-height:370px}.bottom-panel{height:215px}#panel-content{height:173px}.modal{width:96vw;padding:14px}.mapping-table{font-size:10px}.mapping-table td{padding:8px 4px}}@media(max-width:480px){#plc-btn,#wiring-btn{display:inline-flex}.topbar{gap:6px}.stage-overlay #scene-subtitle{display:none}.panel-tabs{gap:8px}}
 .software-3d{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}#stage{position:relative}.stage-overlay,.zoom-controls{z-index:2}
+
+/* PLC programming workspace: compact industrial layout without dashboard chrome. */
+.bottom-panel{height:310px;min-height:260px}
+#panel-content{height:267px;overflow:auto;padding:10px 14px}
+.panel-tabs button{font-size:10px;letter-spacing:.5px}
+.lesson-tip{position:absolute;z-index:2;top:55px;left:16px;max-width:min(490px,calc(100% - 32px));background:#173143eb;color:#e6f0f4;border:1px solid #568296;border-radius:8px;padding:9px 13px;font-size:11px;line-height:1.5;box-shadow:0 5px 22px #10232b40;pointer-events:none}
+.ladder-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:3px 2px 11px;border-bottom:1px solid #344b5c}
+.ladder-toolbar strong{display:block;font-size:12px;letter-spacing:.7px;color:#e5edf3}
+.ladder-toolbar small{display:block;color:#97aab7;font-size:10px;margin-top:4px}
+.ladder-tools{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.ladder-tools button{margin:0;white-space:nowrap;border-radius:6px;padding:7px 10px;font-size:11px}
+.ladder-pulse{background:#274b43;color:#b4f3d5;border:1px solid #458873}
+.ladder-pulse:hover{background:#306d58}
+.ladder-scroll{max-width:100%;overflow:auto;padding:10px 2px 3px}
+.ladder-rung{min-width:590px;display:flex;align-items:stretch;gap:8px;background:#1b2e3b;border:1px solid #344b5c;border-left:3px solid #607889;border-radius:7px;padding:9px;margin-bottom:8px;transition:border-color .14s,background .14s}
+.ladder-rung.energized{border-left-color:#67d0a7;background:#1c3b37}
+.rung-number{width:24px;flex:none;color:#819eae;font-size:10px;font-weight:800;align-self:center;text-align:center}
+.rung-number span{display:block;font-size:18px;color:#5c7c8b}
+.rung-contacts{display:flex;align-items:center;gap:7px;min-width:0;flex:1;flex-wrap:wrap}
+.ladder-contact{display:flex;align-items:center;gap:3px;background:#102533;border:1px solid #3b6479;padding:4px;border-radius:6px}
+.ladder-contact select,.ladder-coil select,.ladder-coil input{font-size:11px;border:1px solid #486377;color:#e5eef4;background:#1e3445;border-radius:4px;height:29px;padding:0 6px;max-width:162px}
+.ladder-contact [data-kind]{max-width:96px;color:#8eddbd}
+.ladder-contact button,.ladder-coil button{background:transparent;border:0;color:#c4a5a4;font-size:17px;padding:0 3px}
+.ladder-line{flex:0 0 17px;align-self:center;height:2px;background:#7299a7}
+.ladder-rung.energized .ladder-line{background:#73d9ae}
+.ladder-coil{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ladder-coil select:first-child{max-width:86px;color:#eeb77f;font-weight:700}
+.ladder-coil label{font-size:10px;color:#9cb6c5;display:flex;align-items:center;gap:4px}
+.ladder-coil input{max-width:65px}
+.add-contact{background:transparent;border:1px dashed #4e7789;color:#a9cbd7;border-radius:5px;height:29px;font-size:9px;padding:0 7px}
+.add-contact:hover{background:#274352}
+.ladder-footer{display:flex;justify-content:space-between;gap:14px;padding:7px 4px 1px;font-size:10px;color:#849aab}
+.light .ladder-toolbar strong{color:#244253}
+.light .ladder-toolbar small,.light .ladder-footer{color:#577483}
+.light .ladder-rung{background:#e3edf2;border-color:#c2d5de;border-left-color:#6c94a7}
+.light .ladder-rung.energized{background:#d9f2e6;border-left-color:#24855f}
+.light .ladder-contact{background:#e9f4f7;border-color:#b5cbd5}
+.light .ladder-contact select,.light .ladder-coil select,.light .ladder-coil input{background:#fff;color:#244251;border-color:#b6cbd4}
+.light .ladder-pulse{background:#d8efe5;color:#176548}
+.light .ladder-coil label{color:#526f7b}
+@media(max-width:800px){.bottom-panel{height:335px}#panel-content{height:291px}.ladder-toolbar{align-items:flex-start;flex-direction:column}.ladder-tools{justify-content:flex-start}.stage-wrap{height:49vh;min-height:300px}.lesson-tip{font-size:10px;top:45px}.panel-tabs button{font-size:9px}}
+@media(max-width:480px){.bottom-panel{height:350px}#panel-content{height:307px}.ladder-toolbar small{font-size:9px}.ladder-tools button{font-size:10px}.panel-tabs{gap:7px}}

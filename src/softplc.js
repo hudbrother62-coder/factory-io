@@ -5,7 +5,10 @@ export const COUNTER_TAGS=Array.from({length:4},(_,i)=>'C'+(i+1));
 export const COIL_MODES=['OUT','SET','RESET','TON','CTU','RES'];
 export function normaliseProgram(scene){
  if(Array.isArray(scene.program))return scene.program;
- return (scene.rules||[]).map(r=>({id:r.id,contacts:[{tag:r.source,kind:r.inverted?'NC':'NO'}],coil:{tag:r.target,mode:r.value?'OUT':'INVERT'}}));
+ const rules=(scene.rules||[]).map(r=>({id:r.id,contacts:[{tag:r.source,kind:r.inverted?'NC':'NO'}],coil:{tag:r.target,mode:r.value?'OUT':'INVERT'}}));
+ const controlled=new Set(rules.map(r=>r.coil.tag));
+ const enabled=(scene.parts||[]).filter(p=>['conveyor','pusher','stopper','emitter','lamp'].includes(p.type)&&p.value===true&&!controlled.has(p.id));
+ return [...enabled.map(p=>({id:'legacy-'+p.id,contacts:[],coil:{tag:p.id,mode:'OUT'}})),...rules];
 }
 export function validProgram(program,parts){
  if(!Array.isArray(program)||program.length>64)return false;

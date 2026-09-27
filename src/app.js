@@ -1,7 +1,7 @@
 import { FactoryView } from './view3d.js';
 import { PlcLink } from './plc.js';
 import { VirtualPLC, normaliseProgram, validProgram } from './softplc.js';
-import { renderLadderEditor } from './ladder-ui.js';
+import { renderLadderEditor, updateLadderLive } from './ladder-ui.js';
 const $ = (id) => document.getElementById(id);
 const catalog = {
   conveyor: { name: 'Belt Conveyor', group: 'TRANSPORT', icon: '▰', desc: 'Memindahkan benda', color: '#cf9468', size: [3.4, 1.25], actuator: true },
@@ -123,4 +123,4 @@ $('scene-name').value=saved?.title||'Conveyor Sorting Line';$('scene-name').onin
 
 $('plc-btn').onclick=()=>plc.open();
 $('wiring-btn').onclick=()=>plc.wiring();
-setInterval(()=>{if((activeTab==='io'||activeTab==='ladder')&&mode==='run')renderPanel();plc.status();},250);
+setInterval(()=>{if(activeTab==='io'&&mode==='run')renderPanel();if(activeTab==='ladder'&&mode==='run')updateLadderLive($('panel-content'),virtual);plc.status();},250);

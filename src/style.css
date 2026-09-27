@@ -107,3 +107,48 @@
 @media(max-width:1100px){.segmented button{min-width:70px}.segmented button span{display:none}.expand-panel span{display:none}.topbar .help-btn{min-width:44px}}
 @media(max-width:800px){.modal{max-height:calc(100dvh - 18px);width:calc(100vw - 18px)}#modal-content{padding:13px}.modal-head{padding:12px 14px}.guide-grid{grid-template-columns:1fr}.lesson-tip{top:45px}.bottom-panel{height:295px}#app.editor-expanded .bottom-panel{height:55dvh}.sidebar-hint{display:block;margin:0 0 12px;flex:none}.sidebar{gap:3px}.stage-wrap{height:48vh;min-height:270px}}
 @media(max-width:480px){.topbar .help-btn{min-width:42px;padding:0 9px}.topbar .help-btn span{display:none}.modal-head h2{font-size:16px}.guide-bottom{align-items:stretch;flex-direction:column}.guide-grid article{padding:12px}.sidebar-hint{font-size:11px}.lesson-tip{font-size:9px;max-width:calc(100% - 20px);left:10px;top:42px}.bottom-panel{height:315px}}
+
+/* CP1E training profile: familiar CIO / W / T / C programming surface. */
+.brand small,.project-heading .eyebrow{letter-spacing:1px}
+.omron-command-legend{margin:10px 0 2px;font-size:10px;line-height:1.6;color:#a9c1cf;background:#1c3544;border:1px solid #36596d;border-radius:6px;padding:7px 10px}
+.omron-command-legend b{color:#f3b77d}
+.omron-network{min-width:0;flex:1;display:flex;flex-direction:column;gap:5px}
+.omron-paths{display:flex;flex-direction:column;gap:5px}
+.omron-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:#142936;border-left:2px solid #55788a;padding:5px 7px;border-radius:5px;min-height:41px}
+.omron-path:not(:first-child){margin-left:20px;border-left-color:#ecb276}
+.omron-path-label{width:62px;font-size:10px;font-weight:800;color:#84b4c9;flex:none}
+.omron-path:not(:first-child) .omron-path-label{color:#f2b97d}
+.omron-path .ladder-contact{background:#223d4c}
+.omron-path .ladder-contact select{max-width:180px}
+.omron-path .ladder-contact [data-kind]{max-width:105px}
+.parallel-action{align-self:flex-start;font-size:10px}
+.ladder-rung{align-items:center;min-width:780px}
+.ladder-rung.energized .omron-path{border-left-color:#6bdaa9}
+.ladder-rung .ladder-coil{max-width:280px;min-width:166px}
+.ladder-rung .ladder-coil select{max-width:175px}
+.ladder-rung .ladder-coil select:first-child{max-width:135px}
+.ladder-rung button:disabled{opacity:.45;cursor:not-allowed}
+.ladder-toolbar .ladder-pulse:disabled{opacity:.5}
+.omron-map-intro{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px}
+.omron-map-intro strong{font-size:12px;color:#e6f2f5;letter-spacing:.7px}
+.omron-map-intro p{font-size:11px;color:#abc1ce;max-width:760px;line-height:1.55;margin:4px 0 0}
+.omron-chip{flex:none;border-radius:5px;border:1px solid #688b9a;padding:6px 8px;font-size:10px;color:#e6b481}
+.omron-map-scroll{max-width:100%;overflow:auto}
+.omron-address-table{width:100%;border-collapse:collapse;min-width:460px;text-align:left;font-size:12px}
+.omron-address-table th{font-size:10px;color:#8eaabd;letter-spacing:.7px;padding:8px;text-transform:uppercase;border-bottom:1px solid #496475}
+.omron-address-table td{padding:7px 8px;border-bottom:1px solid #304858;color:#dce9ef}
+.omron-address-table td:first-child{font-size:10px;color:#a4c6d6;font-weight:700}
+.omron-address-table input{width:93px;max-width:100%;border-radius:5px;border:1px solid #5d8197;background:#102b39;color:#e5f4fc;padding:6px 8px;font-size:12px;font-weight:800}
+.omron-address-table input:disabled{opacity:.78;border-color:#435969}
+.map-value{display:inline-block;font-size:10px;color:#e9ac8a;border:1px solid #68513e;background:#3d302c;padding:4px 8px;border-radius:5px}
+.map-value.on{color:#8de5b9;background:#1d4e40;border-color:#3b9a75}
+.omron-memory{display:flex;gap:10px;flex-direction:column;border:1px solid #365766;border-radius:6px;padding:11px;margin-top:10px;background:#1c3541;font-size:11px;color:#bdd3df;line-height:1.5}
+.omron-memory b{color:#f0b67d;margin-right:9px}
+.omron-map-foot{color:#a0b7c4;font-size:10px;line-height:1.6}
+.light .omron-command-legend,.light .omron-path,.light .omron-memory{background:#e2edf3;color:#305368}
+.light .omron-path .ladder-contact{background:#f2f8fb}
+.light .omron-map-intro strong,.light .omron-address-table td{color:#263f4c}
+.light .omron-map-intro p,.light .omron-map-foot{color:#46697c}
+.light .omron-address-table input{background:#fff;color:#294958}
+.light .omron-chip{color:#8c5725}
+@media(max-width:800px){.omron-map-intro{align-items:flex-start;flex-direction:column}.omron-chip{display:none}.ladder-rung{min-width:710px}.ladder-toolbar small{max-width:520px}}

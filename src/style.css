@@ -44,3 +44,66 @@
 .light .ladder-coil label{color:#526f7b}
 @media(max-width:800px){.bottom-panel{height:335px}#panel-content{height:291px}.ladder-toolbar{align-items:flex-start;flex-direction:column}.ladder-tools{justify-content:flex-start}.stage-wrap{height:49vh;min-height:300px}.lesson-tip{font-size:10px;top:45px}.panel-tabs button{font-size:9px}}
 @media(max-width:480px){.bottom-panel{height:350px}#panel-content{height:307px}.ladder-toolbar small{font-size:9px}.ladder-tools button{font-size:10px}.panel-tabs{gap:7px}}
+
+/* Usability pass: legible edit actions, bounded dialogs and task-oriented instructions. */
+.topbar .help-btn{background:#273d4f;border:1px solid #6c8fa3;color:#e6f5fc;font-size:12px;font-weight:800;padding:0 12px;min-width:95px}
+.topbar .help-btn:hover{background:#35556c}
+.segmented button{min-width:112px;height:32px;font-size:11px;letter-spacing:.45px}
+.segmented button.active{box-shadow:0 0 0 1px #e3a16355 inset}
+.toolbar{height:57px}
+.sidebar-hint{background:#233b48;padding:12px;border:1px solid #426273;border-radius:8px;color:#c8dce6;line-height:1.65}
+.sidebar-hint b{color:#f4ba7f;font-size:10px;letter-spacing:1px}
+.palette-item{min-height:52px}
+.inspector-empty{padding:16px 5px}
+.inspector-empty p{text-align:left;line-height:1.85;font-size:12px}
+.inspector-guide{width:100%;margin-top:10px;border:1px solid #587d94;border-radius:7px;background:#29465a;color:#edf6fa;padding:10px;font-size:12px;font-weight:700}
+.lesson-tip{pointer-events:auto;max-width:min(470px,calc(100% - 32px));background:#1b3545ee;line-height:1.6}
+.lesson-tip button{display:inline;border:0;background:transparent;color:#f7bb7b;font-size:inherit;cursor:pointer;text-decoration:underline;font-weight:800}
+.expand-panel{margin:auto 0!important;color:#d9e7ed!important;font-size:10px!important;border:1px solid #48667a!important;border-radius:5px!important;padding:0 7px!important;height:28px;white-space:nowrap}
+.expand-panel.active{background:#31576a!important}
+.bottom-panel{display:flex;flex-direction:column;height:310px;min-height:0}
+.panel-tabs{flex:none;min-height:42px;align-items:center}
+#panel-content{flex:1;min-height:0;height:auto;overflow:auto}
+#app.editor-expanded .bottom-panel{height:min(60dvh,620px)}
+#app.editor-expanded .stage-wrap{min-height:190px}
+.modal-backdrop{padding:16px;align-items:center}
+.modal{display:flex;flex-direction:column;overflow:hidden;width:min(880px,calc(100vw - 32px));max-height:min(740px,calc(100dvh - 32px));padding:0;border-radius:12px}
+.modal-head{flex:none;position:relative;align-items:center;background:#213647;padding:17px 22px;z-index:1}
+.modal-head h2{font-size:20px;margin-top:3px}
+.modal-head #close-modal{display:grid;place-items:center;flex:none;width:42px;height:42px;font-size:22px;background:#32495c;color:#f3f8fa;border:1px solid #7995a4}
+.modal-head #close-modal:hover{background:#b74d48;color:white}
+#modal-content{flex:1;overflow:auto;overscroll-behavior:contain;padding:18px 22px;min-height:0;scrollbar-gutter:stable}
+.modal .wiring-preview{max-height:min(45vh,420px);overflow:auto;border:1px solid #cad9df;border-radius:8px;background:#f7fbfc}
+.modal .wiring-preview svg{height:auto;min-width:620px}
+.modal .modal-note{font-size:12px;line-height:1.7}
+.modal .modal-actions{flex-wrap:wrap}
+.modal .modal-actions button{font-size:12px}
+.modal .wiring-topline{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 12px;background:#27445a;border:1px solid #48778a;border-radius:8px;color:#e0eef4;font-size:12px;line-height:1.55}
+.modal .wiring-topline button{border:1px solid #e6ad77;background:#eda96c;color:#193040;border-radius:6px;font-size:12px;font-weight:800;padding:8px 12px}
+.guide-mode{width:min(780px,calc(100vw - 32px))}
+.guide-intro{padding:15px;background:#243e50;border:1px solid #44667c;border-radius:10px;margin-bottom:14px}
+.guide-intro strong{font-family:'Space Grotesk';font-size:17px}
+.guide-intro p{font-size:12px;line-height:1.7;color:#b5cfdf;margin:7px 0 0}
+.guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.guide-grid article{display:flex;flex-direction:column;background:#203341;border:1px solid #385364;border-radius:9px;padding:15px;gap:7px}
+.guide-grid article>span{font-size:10px;letter-spacing:1.15px;color:#f0b47c;font-weight:800}
+.guide-grid h3{font-family:'Space Grotesk';font-size:16px;margin:0;color:#e9f4f8}
+.guide-grid p{font-size:12px;line-height:1.65;color:#b9ccd7;flex:1;margin:0 0 6px}
+.guide-grid article button,.guide-bottom button{border:1px solid #7396a7;border-radius:6px;background:#34546a;color:#eff7f9;font-size:12px;font-weight:700;padding:9px 10px;text-align:left}
+.guide-grid article button:hover,.guide-bottom button:hover{background:#446d84}
+.guide-bottom{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:15px;border-top:1px solid #385367;padding-top:13px}
+.guide-bottom span{font-size:10px;color:#a3bccb;line-height:1.6}
+.guide-bottom button{flex:none}
+.light .help-btn{background:#dcecf5;color:#234758;border-color:#7e9bad}
+.light .sidebar-hint{background:#dceaf0;color:#305367;border-color:#b1c9d4}
+.light .inspector-guide{background:#d7edf3;color:#245267}
+.light .modal-head{background:#e5eef4}
+.light .modal-head #close-modal{background:#f4f8fa;color:#305063}
+.light .guide-intro,.light .guide-grid article{background:#e7f0f5;border-color:#c5d7e0}
+.light .guide-intro p,.light .guide-grid p{color:#425f72}
+.light .guide-grid h3,.light .guide-intro strong{color:#203e50}
+.light .guide-bottom span{color:#527080}
+.light .wiring-topline{background:#e5f0f5;color:#264e60}
+@media(max-width:1100px){.segmented button{min-width:70px}.segmented button span{display:none}.expand-panel span{display:none}.topbar .help-btn{min-width:44px}}
+@media(max-width:800px){.modal{max-height:calc(100dvh - 18px);width:calc(100vw - 18px)}#modal-content{padding:13px}.modal-head{padding:12px 14px}.guide-grid{grid-template-columns:1fr}.lesson-tip{top:45px}.bottom-panel{height:295px}#app.editor-expanded .bottom-panel{height:55dvh}.sidebar-hint{display:block;margin:0 0 12px;flex:none}.sidebar{gap:3px}.stage-wrap{height:48vh;min-height:270px}}
+@media(max-width:480px){.topbar .help-btn{min-width:42px;padding:0 9px}.topbar .help-btn span{display:none}.modal-head h2{font-size:16px}.guide-bottom{align-items:stretch;flex-direction:column}.guide-grid article{padding:12px}.sidebar-hint{font-size:11px}.lesson-tip{font-size:9px;max-width:calc(100% - 20px);left:10px;top:42px}.bottom-panel{height:315px}}
